@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Car Advisor — Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+      background: #0B0F19;
+      color: #E2E8F0;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* ============================================================
+       SLIDE CONTAINER & ANIMATION
+       ============================================================ */
+    .slides-wrapper {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 60px 85px;
+      opacity: 0;
+      transform: translateX(80px);
+      transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .slide.exit-left {
+      opacity: 0;
+      transform: translateX(-80px);
+    }
+
+    /* ============================================================
+       BACKGROUND EFFECTS
+       ============================================================ */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.05) 0%, transparent 60%);
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(139,92,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139,92,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    /* ============================================================
+       TYPOGRAPHY
+       ============================================================ */
+    .slide-number {
+      position: absolute;
+      top: 24px;
+      left: 60px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(139,92,246,0.7);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .slide-eyebrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #8B5CF6;
+      margin-bottom: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slide-title {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+      line-height: 1.25;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #C084FC 0%, #38BDF8 50%, #34D399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .slide-subtitle {
+      font-size: 0.92rem;
+      color: #94A3B8;
+      max-width: 800px;
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       CARDS & GRIDS
+       ============================================================ */
+    .card-grid {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+      max-width: 1150px;
+    }
+
+    .card-grid--2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid--4 { grid-template-columns: repeat(4, 1fr); }
+
+    .card {
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 14px;
+      padding: 20px 20px;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #8B5CF6, #06B6D4);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(139,92,246,0.5);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.4), 0 0 16px rgba(139,92,246,0.1);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card__icon {
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .card__title {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #F1F5F9;
+      margin-bottom: 6px;
+    }
+
+    .card__text {
+      font-size: 0.82rem;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       PERSONA & EMPATHY MAP
+       ============================================================ */
+    .persona-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      max-width: 1150px;
+      width: 100%;
+      align-items: start;
+    }
+
+    .persona-card-main {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .persona-avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      margin: 0 auto 12px;
+      box-shadow: 0 0 24px rgba(139,92,246,0.3);
+    }
+
+    .empathy-grid-4 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .empathy-item {
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .empathy-item__head {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: #38BDF8;
+      margin-bottom: 6px;
+    }
+
+    .empathy-item ul {
+      list-style: none;
+      font-size: 0.78rem;
+      color: #CBD5E1;
+      line-height: 1.5;
+    }
+
+    .empathy-item ul li {
+      margin-bottom: 3px;
+      position: relative;
+      padding-left: 10px;
+    }
+
+    .empathy-item ul li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #8B5CF6;
+    }
+
+    .pov-banner {
+      background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(6,182,212,0.12));
+      border: 1px solid rgba(139,92,246,0.4);
+      border-radius: 12px;
+      padding: 14px 20px;
+      grid-column: 1 / -1;
+      margin-top: 10px;
+    }
+
+    /* ============================================================
+       FEATURE: INPUT / OUTPUT
+       ============================================================ */
+    .io-layout {
+      display: grid;
+      grid-template-columns: 1fr 240px 1fr;
+      gap: 16px;
+      max-width: 1150px;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    .io-box {
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 14px;
+      padding: 22px 20px;
+      backdrop-filter: blur(16px);
+    }
+
+    .io-box--process {
+      background: rgba(17, 24, 39, 0.95);
+      border-color: rgba(6,182,212,0.4);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 25px rgba(6,182,212,0.1);
+    }
+
+    .badge-io {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .badge-io--in { background: rgba(139,92,246,0.25); color: #C084FC; }
+    .badge-io--proc { background: rgba(6,182,212,0.25); color: #38BDF8; }
+    .badge-io--out { background: rgba(52,211,153,0.25); color: #34D399; }
+
+    .io-list {
+      list-style: none;
+    }
+
+    .io-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.82rem;
+      color: #E2E8F0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .io-list li:last-child { border-bottom: none; }
+
+    /* ============================================================
+       PROTOTYPE STAGES
+       ============================================================ */
+    .stage-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 1150px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .stage-box {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      flex: 1;
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+    }
+
+    .stage-box:hover {
+      border-color: rgba(139,92,246,0.5);
+      transform: translateY(-2px);
+    }
+
+    .stage-box__num {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #C084FC, #38BDF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .stage-box__name {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #F1F5F9;
+      margin-bottom: 4px;
+    }
+
+    .stage-box__desc {
+      font-size: 0.72rem;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    .stage-arrow-icon {
+      font-size: 1.2rem;
+      color: rgba(139,92,246,0.4);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       VALIDATE & TEST CASES TABLE
+       ============================================================ */
+    .validate-wrapper {
+      max-width: 1150px;
+      width: 100%;
+    }
+
+    .test-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .test-table th {
+      background: rgba(139,92,246,0.14);
+      color: #C084FC;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(139,92,246,0.2);
+    }
+
+    .test-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: #CBD5E1;
+      line-height: 1.5;
+      vertical-align: top;
+    }
+
+    .badge-pass {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(52,211,153,0.15);
+      color: #34D399;
+    }
+
+    .badge-feat {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(139,92,246,0.15);
+      color: #C084FC;
+    }
+
+    /* ============================================================
+       NEXT STEP TIMELINE
+       ============================================================ */
+    .timeline {
+      max-width: 850px;
+      width: 100%;
+      position: relative;
+      padding-left: 36px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 12px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #8B5CF6, #06B6D4, #34D399);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 0 0 20px 24px;
+    }
+
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-item__dot {
+      position: absolute;
+      left: -30px; top: 4px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+      box-shadow: 0 0 10px rgba(139,92,246,0.4);
+    }
+
+    .timeline-item__title {
+      font-family: 'Kanit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #F1F5F9;
+      margin-bottom: 4px;
+    }
+
+    .timeline-item__text {
+      font-size: 0.82rem;
+      color: #94A3B8;
+      line-height: 1.6;
+    }
+
+    /* ============================================================
+       NAVIGATION BAR
+       ============================================================ */
+    .nav-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: rgba(11, 15, 25, 0.95);
+      border-top: 1px solid rgba(139,92,246,0.15);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 100;
+    }
+
+    .nav-dots { display: flex; gap: 6px; align-items: center; }
+
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(139,92,246,0.25);
+      border: none; cursor: pointer;
+      transition: all 0.3s ease; padding: 0;
+    }
+
+    .nav-dot.active {
+      width: 24px; border-radius: 4px;
+      background: linear-gradient(90deg, #8B5CF6, #06B6D4);
+    }
+
+    .nav-btns { display: flex; gap: 10px; }
+
+    .nav-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-family: 'Kanit', sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .nav-btn--prev { background: rgba(139,92,246,0.1); color: #C084FC; border: 1px solid rgba(139,92,246,0.3); }
+    .nav-btn--prev:hover { background: rgba(139,92,246,0.2); }
+    .nav-btn--next { background: linear-gradient(135deg, #8B5CF6, #06B6D4); color: white; }
+    .nav-btn--next:hover { transform: translateY(-1px); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .nav-info { font-size: 0.8rem; color: #64748B; font-weight: 500; }
+
+    /* TITLE SLIDE */
+    .title-slide { text-align: center; }
+    .title-logo { font-size: 3.5rem; margin-bottom: 16px; display: block; }
+    .title-main { font-family: 'Kanit', sans-serif; font-weight: 900; font-size: clamp(2.2rem, 4.5vw, 4rem); line-height: 1.15; margin-bottom: 12px; }
+    .title-tagline { font-size: 1.05rem; color: #94A3B8; max-width: 650px; margin: 0 auto 28px; line-height: 1.7; }
+    .title-meta { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    .title-meta__item { font-size: 0.82rem; color: #64748B; }
+    .title-meta__item strong { color: #A78BFA; }
+
+    @media (max-width: 900px) {
+      .slide { padding: 30px 20px 80px; }
+      .persona-layout, .io-layout, .empathy-grid-4, .card-grid--2 { grid-template-columns: 1fr; }
+      .stage-flow { flex-direction: column; }
+      .stage-arrow-icon { transform: rotate(90deg); }
+      .nav-bar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="slides-wrapper" id="slidesWrapper">
+
+    <!-- ===================== SLIDE 0: TITLE ===================== -->
+    <div class="slide active" data-slide="0">
+      <div class="title-slide">
+        <span class="title-logo">🚗</span>
+        <h1 class="title-main">
+          <span class="gradient-text">AI Car Advisor</span>
+        </h1>
+        <p class="title-tagline">
+          จากงบถึงโชว์รูม ครบทุกขั้น<br>
+          ระบบที่ปรึกษา AI เพื่อการเลือกซื้อรถยนต์อย่างชาญฉลาดและโปร่งใส
+        </p>
+        <div class="title-meta">
+          <span class="title-meta__item">ผู้จัดทำ: <strong>Thanaree Raksaman (6810414003)</strong></span>
+          <span class="title-meta__item">วิชา: <strong>Information Systems</strong></span>
+          <span class="title-meta__item">สถาบัน: <strong>KMITL</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 1: PERSONA ===================== -->
+    <div class="slide" data-slide="1">
+      <span class="slide-number">01 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 1</p>
+      <h2 class="slide-title"><span class="gradient-text">1. Persona (กลุ่มเป้าหมายผู้ใช้)</span></h2>
+      <p class="slide-subtitle">วิเคราะห์พฤติกรรม ทัศนคติ และความต้องการเชิงลึกของผู้ซื้อรถยนต์ผ่าน Empathy Map & POV Statement</p>
+
+      <div class="persona-layout">
+        <!-- Main Profile -->
+        <div class="persona-card-main">
+          <div class="persona-avatar">👩‍💼</div>
+          <h3 style="font-family:'Kanit'; font-size:1.15rem; color:#F1F5F9; margin-bottom:4px;">คุณแพร (Persona หลัก)</h3>
+          <p style="font-size:0.8rem; color:#8B5CF6; font-weight:600; margin-bottom:12px;">พนักงานออฟฟิศ / วัยทำงาน 25–40 ปี</p>
+          <div style="font-size:0.78rem; color:#94A3B8; text-align:left; line-height:1.6;">
+            • <strong>งบประมาณ:</strong> 600,000 – 1,500,000 บาท<br>
+            • <strong>รายได้:</strong> 25,000 – 60,000 บาท/เดือน<br>
+            • <strong>พฤติกรรม:</strong> กำลังซื้อรถคันแรกหรือเปลี่ยนคัน ข้อมูลเยอะจนเลือกไม่ถูก ไม่มั่นใจเรื่องค่างวดและค่าซ่อมระยะยาว
+          </div>
+        </div>
+
+        <!-- Empathy Map & POV -->
+        <div>
+          <div class="empathy-grid-4">
+            <div class="empathy-item">
+              <div class="empathy-item__head">💬 SAYS</div>
+              <ul>
+                <li>ตัวเลือกในตลาดมีเยอะ สเปกซับซ้อน ตัดสินใจยาก</li>
+                <li>กังวลเรื่องค่าใช้จ่ายระยะยาว (ดอกเบี้ย ซ่อมบำรุง)</li>
+                <li>ไม่ค่อยเชื่อใจเซลส์ กลัวถูกยัดเยียดรุ่นเกินงบ</li>
+              </ul>
+            </div>
+            <div class="empathy-item">
+              <div class="empathy-item__head">💭 THINKS</div>
+              <ul>
+                <li>คนรอบข้างเชียร์แบรนด์ตลาดเพราะซ่อง่าย อะไหล่ถูก</li>
+                <li>ได้ยินรีวิวเชิงลบเกี่ยวกับเรื่องซ่อมจะปัดตกทันที</li>
+                <li>คำแนะนำจากเซลส์มักจะเชียร์สินค้าตนเองเป็นหลัก</li>
+              </ul>
+            </div>
+            <div class="empathy-item">
+              <div class="empathy-item__head">🎬 DOES</div>
+              <ul>
+                <li>หาข้อมูลราคาและสเปกเบื้องต้นผ่าน Google / TikTok</li>
+                <li>อ่านรีวิวเปรียบเทียบจากผู้ใช้จริงใน Pantip/FB Group</li>
+                <li>กังวลเรื่องสถานีชาร์จ EV มองว่า Hybrid ปลอดภัยกว่า</li>
+              </ul>
+            </div>
+            <div class="empathy-item">
+              <div class="empathy-item__head">❤️ FEELS</div>
+              <ul>
+                <li>เน้นความจำเป็น งบประมาณ และความคุ้มค่าเป็นหลัก</li>
+                <li>อยากให้มีตัวช่วยดึงข้อมูลสเปก/ราคามาเทียบแบบเป็นกลาง</li>
+                <li>ต้องได้ทดลองขับจริงที่ศูนย์ก่อนกล้าตัดสินใจซื้อ</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="pov-banner">
+            <p style="font-family:'Kanit'; font-size:0.85rem; font-weight:700; color:#C084FC; margin-bottom:4px;">📌 POV Statement (Point of View)</p>
+            <p style="font-size:0.8rem; color:#F1F5F9; line-height:1.6;">
+              "ผู้ซื้อรถยนต์ที่มองหาความคุ้มค่า ต้องการข้อมูลเปรียบเทียบราคาและข้อดีข้อเสียของรถแต่ละรุ่นอย่างเปิดเผยและเป็นกลาง เพราะต้องการความมั่นใจอย่างแท้จริงในการปกป้องงบประมาณและผลประโยชน์สูงสุดของครอบครัว โดยไม่พึ่งพิงคำแนะนำจากพนักงานขายในโชว์รูม"
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 2: NEED ===================== -->
+    <div class="slide" data-slide="2">
+      <span class="slide-number">02 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 2</p>
+      <h2 class="slide-title"><span class="gradient-text">2. Need (ความต้องการของผู้ใช้ 8 ด้าน)</span></h2>
+      <p class="slide-subtitle">ความต้องการที่แท้จริงของผู้ใช้เพื่อแก้ปัญหาความสับสนและความกังวลในการซื้อรถ</p>
+
+      <div class="card-grid card-grid--2">
+        <div class="card">
+          <div class="card__title" style="color:#C084FC;">🎯 Functional Needs (ความต้องการด้านฟังก์ชัน)</div>
+          <div class="card__text">
+            • <strong>1. Multi-Car Comparison:</strong> เปรียบเทียบราคา สเปก และโปรโมชันของรถหลายคันในหน้าเดียว<br>
+            • <strong>2. Neutral Data Engine:</strong> ได้รับข้อมูลที่เป็นกลาง ปราศจากความอคติจากเซลส์หรือแบรนด์<br>
+            • <strong>3. TCO Calculator:</strong> คำนวณต้นทุนรวม 5 ปี (ประกัน ซ่อมบำรุง ค่าน้ำมัน/ไฟ ค่าเสื่อมราคา)<br>
+            • <strong>4. Review Aggregator:</strong> เห็นรีวิวจากผู้ใช้จริงและปัญหาที่พบบ่อย (Complaints) ก่อนตัดสินใจ<br>
+            • <strong>5. Smart Recommendation:</strong> ได้รับ shortlist รถที่คัดกรองตรงตามงบประมาณและไลฟ์สไตล์<br>
+            • <strong>6. Showroom Checklist:</strong> เตรียมพร้อมก่อนไปโชว์รูมเพื่อไม่ให้ถูกกดดัน
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title" style="color:#38BDF8;">💜 Emotional Needs (ความต้องการด้านอารมณ์)</div>
+          <div class="card__text">
+            • <strong>Confidence & Safety:</strong> รู้สึกมั่นใจอย่างแท้จริงว่ารถที่เลือกมีความคุ้มค่าและปลอดภัยต่อครอบครัว<br>
+            • <strong>Explainable Trust:</strong> ได้รับคำอธิบายเหตุผลชัดเจนว่าทำไมรถคันนี้จึงเหมาะหรือไม่เหมาะกับตนเอง<br>
+            • <strong>Peace of Mind:</strong> ลดความกังวลว่าจะมีค่างวดผ่อนหนักเกินไป หรือเจอค่าซ่อมบำรุงบานปลายในอนาคต<br>
+            • <strong>Sales Independence:</strong> ไม่รู้สึกโดนกดดันหรือโดนยัดเยียดตัวเลือกจากพนักงานขายในโชว์รูม<br>
+            • <strong>Time Saving:</strong> ประหยัดเวลาในการค้นหาข้อมูลที่กระจัดกระจายอยู่หลายเว็บไซต์
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 3: FEATURE (INPUT / OUTPUT) ===================== -->
+    <div class="slide" data-slide="3">
+      <span class="slide-number">03 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 3</p>
+      <h2 class="slide-title"><span class="gradient-text">3. Feature (Input & Output)</span></h2>
+      <p class="slide-subtitle">การรับข้อมูลเข้า การประมวลผลด้วย AI Engine และผลลัพธ์ที่ส่งออกให้ผู้ใช้</p>
+
+      <div class="io-layout">
+        <!-- INPUT -->
+        <div class="io-box">
+          <div class="badge-io badge-io--in">INPUT (ข้อมูลเข้า)</div>
+          <ul class="io-list">
+            <li><span>💰</span> <strong>Budget:</strong> งบประมาณซื้อรถ (บาท)</li>
+            <li><span>📊</span> <strong>Income:</strong> รายได้ต่อเดือน (บาท)</li>
+            <li><span>😩</span> <strong>Pains:</strong> ปัญหาการใช้รถ (เลือกได้สูงสุด 3 ข้อ)</li>
+            <li><span>🌟</span> <strong>Gains:</strong> ความคาดหวังในรถคันใหม่ (สูงสุด 3 ข้อ)</li>
+            <li><span>🚗</span> <strong>Body Type:</strong> ประเภทตัวถัง (7 แบบ หรือ ให้ช่วยแนะนำ)</li>
+            <li><span>⛽</span> <strong>Fuel Type:</strong> ขุมพลัง (เบนซิน ดีเซล ไฮบริด EV)</li>
+            <li><span>🏷️</span> <strong>Brands:</strong> แบรนด์ในดวงใจ (สูงสุด 3 แบรนด์)</li>
+          </ul>
+        </div>
+
+        <!-- PROCESS -->
+        <div class="io-box io-box--process">
+          <div class="badge-io badge-io--proc">PROCESS</div>
+          <p style="font-size:2rem; margin-bottom:8px;">⚙️</p>
+          <h4 style="font-family:'Kanit'; font-size:1rem; color:#38BDF8; margin-bottom:6px;">AI Scoring & TCO Engine</h4>
+          <p style="font-size:0.75rem; color:#94A3B8; line-height:1.5;">
+            ประมวลผลรถยนต์ 104+ รุ่น<br>
+            คำนวณ Match Score (100 คะแนน)<br>
+            และคำนวณ TCO 5 ปี แบบอัตโนมัติ
+          </p>
+        </div>
+
+        <!-- OUTPUT -->
+        <div class="io-box">
+          <div class="badge-io badge-io--out">OUTPUT (ผลลัพธ์ออก)</div>
+          <ul class="io-list">
+            <li><span>🏆</span> <strong>Top 5 Matches:</strong> รายชื่อรถที่ตรงใจพร้อมคะแนน Match Score %</li>
+            <li><span>📝</span> <strong>Explainable Reasons:</strong> เหตุผลสั้นๆ ว่าทำไมจึงแนะนำคันนี้</li>
+            <li><span>💵</span> <strong>TCO 5 Years:</strong> ประมาณการค่าใช้จ่ายรวม 5 ปี & ค่าผ่อน/เดือน</li>
+            <li><span>⚠️</span> <strong>Risk Notes:</strong> ข้อควรระวังและคำเตือนเฉพาะรุ่น/เชื้อเพลิง</li>
+            <li><span>⭐</span> <strong>Live Reviews:</strong> รีวิวและข้อเสนอแนะจากผู้ใช้จริง</li>
+            <li><span>✅</span> <strong>Showroom Checklist:</strong> รายการตรวจสอบก่อนไปโชว์รูม</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 4: PROTOTYPE ===================== -->
+    <div class="slide" data-slide="4">
+      <span class="slide-number">04 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 4</p>
+      <h2 class="slide-title"><span class="gradient-text">4. Prototype (ต้นแบบระบบ 5 ขั้นตอน)</span></h2>
+      <p class="slide-subtitle">นำผู้ใช้ผ่านกระบวนการตัดสินใจซื้อรถอย่างเป็นขั้นตอน (5 Forward Steps)</p>
+
+      <div class="stage-flow" style="margin-bottom: 24px;">
+        <div class="stage-box">
+          <div class="stage-box__num">01</div>
+          <div class="stage-box__name">📝 Frame</div>
+          <div class="stage-box__desc">ตอบ Quiz 5 ข้อระบุงบประมาณ รายได้ และไลฟ์สไตล์</div>
+        </div>
+        <span class="stage-arrow-icon">›</span>
+        <div class="stage-box">
+          <div class="stage-box__num">02</div>
+          <div class="stage-box__name">⚖️ Compare</div>
+          <div class="stage-box__desc">ดูผลการจัดอันดับ Top Cars และคำอธิบายคะแนน</div>
+        </div>
+        <span class="stage-arrow-icon">›</span>
+        <div class="stage-box">
+          <div class="stage-box__num">03</div>
+          <div class="stage-box__name">💰 Cost & Risk</div>
+          <div class="stage-box__desc">วิเคราะห์ TCO 5 ปี เช็คความเสี่ยง และดูรีวิวผู้ใช้จริง</div>
+        </div>
+        <span class="stage-arrow-icon">›</span>
+        <div class="stage-box">
+          <div class="stage-box__num">04</div>
+          <div class="stage-box__name">✅ Decide</div>
+          <div class="stage-box__desc">ทบทวนผลเปรียบเทียบ แล้วยืนยันเลือกคันเดียวที่ใช่ที่สุด</div>
+        </div>
+        <span class="stage-arrow-icon">›</span>
+        <div class="stage-box">
+          <div class="stage-box__num">05</div>
+          <div class="stage-box__name">🏬 Showroom</div>
+          <div class="stage-box__desc">ใช้ Interactive Checklist เตรียมตัวก่อนไปลองขับ</div>
+        </div>
+      </div>
+
+      <div class="card-grid card-grid--2">
+        <div class="card">
+          <div class="card__title" style="color:#C084FC;">💻 Frontend Architecture</div>
+          <div class="card__text">
+            • <strong>Web Application:</strong> พัฒนาด้วย Next.js (TypeScript) + Vanilla CSS / HTML Component<br>
+            • <strong>Responsive UI:</strong> ออกแบบอินเทอร์เฟซแบบไซเบอร์เทค สะอาดตา ตอบสนองไวบนมือถือและคอมพิวเตอร์
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__title" style="color:#38BDF8;">⚡ Backend Services</div>
+          <div class="card__text">
+            • <strong>FastAPI Service:</strong> ให้บริการ Scoring Logic Engine และคำนวณ TCO 5 ปีผ่าน REST APIs<br>
+            • <strong>Review Service:</strong> ดึงข้อมูลรีวิว real-time จาก Google Search API สรุปความคิดเห็นผู้ใช้จริง
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 5: VALIDATE ===================== -->
+    <div class="slide" data-slide="5">
+      <span class="slide-number">05 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 5</p>
+      <h2 class="slide-title"><span class="gradient-text">5. Validate (User Target & Test Cases)</span></h2>
+      <p class="slide-subtitle">การทดสอบสอบความถูกต้องของระบบกับกลุ่มเป้าหมาย ผ่าน Test Cases ครบทุกฟีเจอร์หลัก (3-5 Cases)</p>
+
+      <div class="validate-wrapper">
+        <div class="card" style="margin-bottom:16px; padding:14px 20px;">
+          <div style="font-family:'Kanit'; font-weight:700; color:#38BDF8; font-size:0.95rem; margin-bottom:4px;">👥 User Target (กลุ่มเป้าหมายในการทดสอบ)</div>
+          <div style="font-size:0.8rem; color:#CBD5E1; line-height:1.5;">
+            พนักงานออฟฟิศ / คนทำงานยุคใหม่ อายุ 25–40 ปี ที่กำลังวางแผนซื้อรถยนต์งบประมาณ 600K–1.5M บาท มีรายได้ต่อเดือน 25K–60K บาท และต้องการข้อมูลที่เป็นกลางในการตัดสินใจ
+          </div>
+        </div>
+
+        <table class="test-table">
+          <thead>
+            <tr>
+              <th style="width:5%;">#</th>
+              <th style="width:16%;">Feature</th>
+              <th style="width:34%;">Test Case Scenario</th>
+              <th style="width:34%;">Expected Result</th>
+              <th style="width:11%; text-align:center;">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span class="badge-feat">Frame</span> Quiz Input</td>
+              <td>ผู้ใช้ระบุงบ 900K, รายได้ 30K, เลือก Pain/Gain, เลือกทรง SUV, เครื่องไฮบริด, แบรนด์ Toyota</td>
+              <td>ระบบบันทึกค่าและคำนวณ active lifestyle เพื่อส่งต่อให้ Scoring Engine ได้ครบถ้วน</td>
+              <td style="text-align:center;"><span class="badge-pass">✅ Pass</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span class="badge-feat">Compare</span> Match Scoring</td>
+              <td>ระบบประมวลผลคะแนน Match Score จากฐานข้อมูลรถยนต์ 104+ รุ่น</td>
+              <td>แสดงผล Top 10 รถยนต์เรียงตามคะแนน โดย Toyota SUV Hybrid ได้คะแนนสูงสุดตามเกณฑ์</td>
+              <td style="text-align:center;"><span class="badge-pass">✅ Pass</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span class="badge-feat">Cost & Risk</span> TCO Engine</td>
+              <td>คำนวณ TCO 5 ปี (ประกัน + ซ่อมบำรุง − มูลค่าขายต่อ) และค่างวดผ่อน/เดือน</td>
+              <td>แสดงยอด TCO 5 ปีถูกต้อง พร้อมระบุ Affordability Tier (ผ่อนไหวสบายๆ / กำลังดี / หนัก)</td>
+              <td style="text-align:center;"><span class="badge-pass">✅ Pass</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="badge-feat">Decide</span> Selection</td>
+              <td>ผู้ใช้เปรียบเทียบผลลัพธ์และกดเลือกคันที่ต้องการเพียง 1 คันเพื่อยืนยัน</td>
+              <td>ระบบบันทึกการตัดสินใจและส่งผ่านไปยัง Stage Showroom Checklist</td>
+              <td style="text-align:center;"><span class="badge-pass">✅ Pass</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="badge-feat">Showroom</span> Checklist</td>
+              <td>ผู้ใช้ใช้งาน Interactive Checklist สำหรับตรวจสอบตัวรถ สเปก และข้อเสนอในโชว์รูม</td>
+              <td>แสดงรายการติ๊กเสร็จพร้อม Progress Bar อัปเดตสถานะแบบ real-time</td>
+              <td style="text-align:center;"><span class="badge-pass">✅ Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 6: NEXT STEP ===================== -->
+    <div class="slide" data-slide="6">
+      <span class="slide-number">06 / 07</span>
+      <p class="slide-eyebrow">✦ TOPIC 6</p>
+      <h2 class="slide-title"><span class="gradient-text">6. Next Step (ขั้นตอนการพัฒนาต่อไป)</span></h2>
+      <p class="slide-subtitle">แผนการต่อยอดระบบ AI Car Advisor เพื่อยกระดับสู่การใช้งานจริงเต็มรูปแบบ</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-item__dot"></div>
+          <p class="timeline-item__title">🧪 1. Expanded User Testing & Feedback Loop</p>
+          <p class="timeline-item__text">ทดสอบกับผู้ใช้เป้าหมายจริง 20–30 คน เพื่อประเมิน UX/UI และปรับปรุงน้ำหนักคะแนน Scoring ให้สอดคล้องกับพฤติกรรมผู้ซื้อชาวไทย</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item__dot"></div>
+          <p class="timeline-item__title">🤖 2. Predictive ML Model (scikit-learn Integration)</p>
+          <p class="timeline-item__text">นำ Machine Learning มาใช้พยากรณ์ราคาขายต่อมือสอง (Resale Value) และประเมินอัตราสิ้นเปลืองเชื้อเพลิงตามพฤติกรรมการขับขี่จริง</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item__dot"></div>
+          <p class="timeline-item__title">🗄️ 3. Database Migration (PostgreSQL / Supabase)</p>
+          <p class="timeline-item__text">ย้ายจากฐานข้อมูล In-Memory ไปยังระบบฐานข้อมูล Relational ที่มีระบบ Scraping ดึงราคารถและโปรโมชันค่ายรถยนต์มาอัปเดตแบบอัตโนมัติ</p>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-item__dot"></div>
+          <p class="timeline-item__title">📍 4. Real-time Showroom & Test Drive Booking</p>
+          <p class="timeline-item__text">เชื่อมต่อ API กับศูนย์บริการและโชว์รูม เพื่อให้ผู้ใช้สามารถกดนัดหมายทดลองขับ (Test Drive) พร้อมส่ง Checklist เข้ามือถือได้ทันที</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLIDE 7: THANK YOU ===================== -->
+    <div class="slide" data-slide="7">
+      <div class="title-slide">
+        <span class="title-logo">🙏</span>
+        <h1 class="title-main">
+          <span class="gradient-text">ขอบคุณครับ</span>
+        </h1>
+        <p class="title-tagline">
+          AI Car Advisor — จากงบถึงโชว์รูม ครบทุกขั้น<br>
+          พร้อมรับฟังคำแนะนำและตอบคำถามจากอาจารย์ครับ
+        </p>
+        <div class="title-meta" style="margin-top:20px; gap:24px;">
+          <span class="title-meta__item">ผู้จัดทำ: <strong>Thanaree Raksaman 6810414003</strong></span>
+          <span class="title-meta__item">วิชา: <strong>Information Systems (IS)</strong></span>
+          <span class="title-meta__item">สถาบัน: <strong>KMITL</strong></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <nav class="nav-bar">
+    <div class="nav-dots" id="navDots"></div>
+    <span class="nav-info" id="navInfo">สไลด์ 1 / 8</span>
+    <div class="nav-btns">
+      <button class="nav-btn nav-btn--prev" id="prevBtn" disabled>← ก่อนหน้า</button>
+      <button class="nav-btn nav-btn--next" id="nextBtn">ถัดไป →</button>
+    </div>
+  </nav>
+
+  <script>
+    (() => {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let current = 0;
+
+      const navDots = document.getElementById('navDots');
+      const navInfo = document.getElementById('navInfo');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtnEl = document.getElementById('nextBtn');
+
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.dataset.index = i;
+        dot.addEventListener('click', () => goTo(i));
+        navDots.appendChild(dot);
+      }
+
+      function updateSlide() {
+        slides.forEach((s, i) => {
+          s.classList.remove('active', 'exit-left');
+          if (i < current) s.classList.add('exit-left');
+          if (i === current) s.classList.add('active');
+        });
+
+        navDots.querySelectorAll('.nav-dot').forEach((d, i) => {
+          d.classList.toggle('active', i === current);
+        });
+
+        navInfo.textContent = `สไลด์ ${current + 1} / ${totalSlides}`;
+        prevBtn.disabled = current === 0;
+        nextBtnEl.disabled = current === totalSlides - 1;
+      }
+
+      function goTo(index) {
+        if (index < 0 || index >= totalSlides) return;
+        current = index;
+        updateSlide();
+      }
+
+      prevBtn.addEventListener('click', () => goTo(current - 1));
+      nextBtnEl.addEventListener('click', () => goTo(current + 1));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          goTo(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+          e.preventDefault();
+          goTo(current - 1);
+        }
+      });
+
+      let touchStartX = 0;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+      document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 60) {
+          if (diff > 0) goTo(current + 1);
+          else goTo(current - 1);
+        }
+      });
+
+      updateSlide();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Car Advisor — จากงบถึงโชว์รูม ครบทุกขั้น</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="brand">
+        <span class="brand__mark">AI</span>
+        <span class="brand__name">Car Advisor</span>
+      </div>
+      <p class="brand__tag">เพื่อนคู่คิดเรื่องรถ อยู่ข้างพี่ทุกขั้นตอน</p>
+    </div>
+  </header>
+
+  <!-- ===================== MACRO STAGE TRACKER ===================== -->
+  <nav class="stage-tracker" id="stageTracker" aria-label="ขั้นตอนทั้งหมด" hidden>
+    <div class="stage-item is-active" data-stage="1"><span class="stage-item__icon">📝</span><span class="stage-item__label">Frame</span></div>
+    <span class="stage-arrow">›</span>
+    <div class="stage-item" data-stage="2"><span class="stage-item__icon">⚖️</span><span class="stage-item__label">Compare</span></div>
+    <span class="stage-arrow">›</span>
+    <div class="stage-item" data-stage="3"><span class="stage-item__icon">💰</span><span class="stage-item__label">Cost &amp; Risk</span></div>
+    <span class="stage-arrow">›</span>
+    <div class="stage-item" data-stage="4"><span class="stage-item__icon">✅</span><span class="stage-item__label">Decide</span></div>
+    <span class="stage-arrow">›</span>
+    <div class="stage-item" data-stage="5"><span class="stage-item__icon">🏬</span><span class="stage-item__label">Showroom</span></div>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- ===================== LANDING / HERO ===================== -->
+    <section class="hero" id="landingSection">
+      <div class="hero__glow"></div>
+      <p class="hero__eyebrow">✦ เพื่อนสาวที่พร้อมช่วยหารถ</p>
+      <h1 class="hero__title">มาหารถที่ใช่<br />ไปด้วยกัน<br /><span class="hero__title-accent">นะ</span></h1>
+      <p class="hero__sub">ตอบคำถามสั้นๆ ให้เราเข้าใจพี่ก่อน แล้วช่วยกันคัดรถ เทียบต้นทุนจริง ดูว่าผ่อนไหวไหม จนพร้อมเดินเข้าโชว์รูมแบบมั่นใจสุดๆ</p>
+
+      <div class="hero__stats">
+        <div class="hero__stat"><span class="hero__stat-num" id="heroCarCount">104</span><span class="hero__stat-label">รุ่นรถให้เลือกดู</span></div>
+        <div class="hero__stat"><span class="hero__stat-num">7</span><span class="hero__stat-label">ประเภทตัวถัง</span></div>
+        <div class="hero__stat"><span class="hero__stat-num">5</span><span class="hero__stat-label">ขั้นตอนจบ</span></div>
+      </div>
+
+      <button type="button" id="startBtn" class="btn-hero">เริ่มหารถด้วยกันเลย →</button>
+
+      <div class="hero__art" aria-hidden="true" id="heroArt"></div>
+    </section>
+
+    <!-- ===================== STAGE 1 · FRAME (quiz) ===================== -->
+    <section class="quiz-card" id="quizCard" hidden>
+
+      <div class="quiz-progress">
+        <div class="dots" id="dots">
+          <span class="dot is-active" data-dot="1"></span>
+          <span class="dot" data-dot="2"></span>
+          <span class="dot" data-dot="3"></span>
+          <span class="dot" data-dot="4"></span>
+          <span class="dot" data-dot="5"></span>
+        </div>
+        <span class="progress-label" id="progressLabel">ข้อ 1 จาก 5</span>
+      </div>
+
+      <!-- STEP 1 — BUDGET & INCOME (Split side-by-side) -->
+      <div class="step" data-step="1">
+        <div class="budget-income-grid">
+          
+          <!-- LEFT COLUMN: BUDGET -->
+          <div class="budget-income-col">
+            <p class="quiz-eyebrow">งบประมาณรถยนต์</p>
+            <h2 class="quiz-q">งบประมาณที่เล็งไว้?</h2>
+            <p class="quiz-hint">ระบุงบประมาณที่ต้องการซื้อรถ (หน่วยเป็น k)</p>
+
+            <div class="modern-input-card">
+              <div class="input-k-wrapper">
+                <input type="number" id="budgetK" class="input-k-field" value="900" min="100" max="10000" step="50" placeholder="0" />
+                <span class="input-k-suffix">k</span>
+              </div>
+              <div class="budget-box__amount" id="budgetValue">900,000 บาท</div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: INCOME -->
+          <div class="budget-income-col">
+            <p class="quiz-eyebrow">รายได้ต่อเดือน</p>
+            <h2 class="quiz-q">รายได้ต่อเดือนของพี่?</h2>
+            <p class="quiz-hint">ระบุรายได้เฉลี่ยต่อเดือนของพี่ (หน่วยเป็น k)</p>
+
+            <div class="modern-input-card">
+              <div class="input-k-wrapper">
+                <input type="number" id="incomeK" class="input-k-field" value="30" min="5" max="1000" step="5" placeholder="0" />
+                <span class="input-k-suffix">k</span>
+              </div>
+              <div class="budget-box__amount" id="incomeValue">30,000 บาท / เดือน</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 2 — PAINS & GAINS -->
+      <div class="step" data-step="2" hidden>
+        <div class="pain-gain-grid">
+          
+          <!-- LEFT COLUMN: PAIN -->
+          <div class="pain-gain-col">
+            <h2 class="quiz-q quiz-q--pg">ปัญหาที่เจอบ่อยในการขับรถ?</h2>
+            <p class="quiz-hint">เลือกปัญหาที่พี่พบเจอบ่อยที่สุด (เลือกได้สูงสุด 3 ข้อ)</p>
+
+            <div class="option-grid option-grid--vertical" data-group="pains" style="max-width: 100%;">
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain1">
+                <span class="option-card__emoji">🏙️</span>
+                <span class="option-card__title">ขับในเมืองเป็นหลัก</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain3">
+                <span class="option-card__emoji">👨‍👩‍👧</span>
+                <span class="option-card__title">ใช้รถร่วมกับคนในบ้านเป็นประจำ</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain4">
+                <span class="option-card__emoji">💼</span>
+                <span class="option-card__title">ใช้รถทำงานหลายจุด เดินทางหลายที่ต่อวัน</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain5">
+                <span class="option-card__emoji">🛣️</span>
+                <span class="option-card__title">เดินทางไกลเป็นประจำ หรือเดินทางต่างจังหวัดบ่อย</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain6">
+                <span class="option-card__emoji">⛺</span>
+                <span class="option-card__title">ท่องเที่ยวและกิจกรรมกลางแจ้ง ออกทริป แคมป์ปิ้ง หรือเดินทางพร้อมอุปกรณ์</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="pain7">
+                <span class="option-card__emoji">📦</span>
+                <span class="option-card__title">ต้องใช้พื้นที่เก็บของและการจัดวางที่ยืดหยุ่น</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: GAIN -->
+          <div class="pain-gain-col">
+            <h2 class="quiz-q quiz-q--pg">อยากได้รถที่ตอบโจทย์อย่างไร?</h2>
+            <p class="quiz-hint">เลือกสิ่งที่คาดหวังในรถคันใหม่ (เลือกได้สูงสุด 3 ข้อ)</p>
+
+            <div class="option-grid option-grid--vertical" data-group="gains" style="max-width: 100%;">
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain1">
+                <span class="option-card__emoji">🚗</span>
+                <span class="option-card__title">กะทัดรัด คล่องตัว จอดง่าย</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain2">
+                <span class="option-card__emoji">🛋️</span>
+                <span class="option-card__title">กว้างขวาง นั่งสบายทั้งครอบครัว</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain3">
+                <span class="option-card__emoji">🔋</span>
+                <span class="option-card__title">ประหยัดน้ำมัน / ไฟฟ้า</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain4">
+                <span class="option-card__emoji">🛞</span>
+                <span class="option-card__title">ช่วงล่างมั่นคง ขับมั่นใจ</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain5">
+                <span class="option-card__emoji">⛺</span>
+                <span class="option-card__title">ใต้ท้องสูง พร้อมหลายสภาพถนน</span>
+              </button>
+              <button type="button" class="option-card option-card--horizontal option-card--pg" data-value="gain6">
+                <span class="option-card__emoji">🎒</span>
+                <span class="option-card__title">พื้นที่เก็บของกว้าง เบาะพับได้</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 3 — BODY TYPE -->
+      <div class="step" data-step="3" hidden>
+        <p class="quiz-eyebrow">แล้วทรงรถล่ะ</p>
+        <h2 class="quiz-q">ชอบรถประเภทไหน?</h2>
+        <p class="quiz-hint">ถ้ายังไม่มีในใจ เลือก "ให้ช่วยแนะนำ" ได้เลย</p>
+
+        <div class="option-grid" data-group="bodytype">
+          <button type="button" class="option-card" data-value="hatchback">
+            <span class="option-card__emoji">🚗</span>
+            <span class="option-card__title">Hatchback / อีโค่คาร์</span>
+            <span class="option-card__sub">เล็ก คล่องตัว จอดง่าย</span>
+          </button>
+          <button type="button" class="option-card" data-value="sedan">
+            <span class="option-card__emoji">🚘</span>
+            <span class="option-card__title">Sedan</span>
+            <span class="option-card__sub">นั่งสบาย ดูเรียบร้อย</span>
+          </button>
+          <button type="button" class="option-card" data-value="coupe">
+            <span class="option-card__emoji">🏎️</span>
+            <span class="option-card__title">Coupe</span>
+            <span class="option-card__sub">สปอร์ต 2 ประตู ขับสนุก</span>
+          </button>
+          <button type="button" class="option-card" data-value="suv">
+            <span class="option-card__emoji">🚙</span>
+            <span class="option-card__title">SUV / Crossover</span>
+            <span class="option-card__sub">นั่งสูง มั่นใจ เก็บของเยอะ</span>
+          </button>
+          <button type="button" class="option-card" data-value="ppv">
+            <span class="option-card__emoji">🚙</span>
+            <span class="option-card__title">PPV 7 ที่นั่ง</span>
+            <span class="option-card__sub">ฐานกระบะ ลุยได้ นั่งได้เยอะ</span>
+          </button>
+          <button type="button" class="option-card" data-value="mpv">
+            <span class="option-card__emoji">🚐</span>
+            <span class="option-card__title">รถตู้ / MPV</span>
+            <span class="option-card__sub">ขนคนได้เยอะสุด อเนกประสงค์</span>
+          </button>
+          <button type="button" class="option-card" data-value="pickup">
+            <span class="option-card__emoji">🛻</span>
+            <span class="option-card__title">กระบะ / Pickup</span>
+            <span class="option-card__sub">ลุยได้ บรรทุกหนักได้</span>
+          </button>
+          <button type="button" class="option-card" data-value="unsure">
+            <span class="option-card__emoji">🤔</span>
+            <span class="option-card__title">ไม่แน่ใจ</span>
+            <span class="option-card__sub">ให้ช่วยแนะนำจากข้ออื่นแทน</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 4 — ENGINE / FUEL -->
+      <div class="step" data-step="4" hidden>
+        <p class="quiz-eyebrow">เรื่องเครื่องยนต์</p>
+        <h2 class="quiz-q">อยากได้ขุมพลังแบบไหน?</h2>
+
+        <div class="option-grid" data-group="fuel">
+          <button type="button" class="option-card" data-value="any">
+            <span class="option-card__emoji">🤷</span>
+            <span class="option-card__title">ไม่กำหนด</span>
+            <span class="option-card__sub">คันไหนคุ้มก็เอา</span>
+          </button>
+          <button type="button" class="option-card" data-value="petrol">
+            <span class="option-card__emoji">⛽️</span>
+            <span class="option-card__title">น้ำมันเบนซิน</span>
+            <span class="option-card__sub">หาปั๊มง่าย ซ่อมง่าย</span>
+          </button>
+          <button type="button" class="option-card" data-value="diesel">
+            <span class="option-card__emoji">🛢️</span>
+            <span class="option-card__title">น้ำมันดีเซล</span>
+            <span class="option-card__sub">แรงบิดดี ทนทาน เหมาะลุยงาน</span>
+          </button>
+          <button type="button" class="option-card" data-value="hybrid">
+            <span class="option-card__emoji">🔋</span>
+            <span class="option-card__title">ไฮบริด</span>
+            <span class="option-card__sub">ประหยัด ไม่ต้องพึ่งที่ชาร์จ</span>
+          </button>
+          <button type="button" class="option-card" data-value="ev">
+            <span class="option-card__emoji">⚡️</span>
+            <span class="option-card__title">ไฟฟ้า (EV)</span>
+            <span class="option-card__sub">เงียบ ไม่มีค่าน้ำมันเลย</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 5 — BRANDS -->
+      <div class="step" data-step="5" hidden>
+        <p class="quiz-eyebrow">ข้อสุดท้ายแล้ว</p>
+        <h2 class="quiz-q">แบรนด์ในดวงใจที่ชอบเป็นพิเศษ?</h2>
+        <p class="quiz-hint">เลือกได้สูงสุด <strong>3 แบรนด์</strong> (หากไม่ระบุ ระบบจะตั้งค่าเป็น "อะไรก็ได้" ให้ครับ)</p>
+
+        <div class="option-grid option-grid--brands" data-group="brands" data-max="3">
+          <button type="button" class="option-card option-card--brand is-selected" data-value="any" style="grid-column: 1 / -1;">
+            อะไรก็ได้ (ไม่จำกัด)
+          </button>
+          <button type="button" class="option-card option-card--brand" data-value="Audi">Audi</button>
+          <button type="button" class="option-card option-card--brand" data-value="BMW">BMW</button>
+          <button type="button" class="option-card option-card--brand" data-value="BYD">BYD</button>
+          <button type="button" class="option-card option-card--brand" data-value="Changan">Changan</button>
+          <button type="button" class="option-card option-card--brand" data-value="Chevrolet">Chevrolet</button>
+          <button type="button" class="option-card option-card--brand" data-value="Ford">Ford</button>
+          <button type="button" class="option-card option-card--brand" data-value="GAC">GAC</button>
+          <button type="button" class="option-card option-card--brand" data-value="GWM">GWM</button>
+          <button type="button" class="option-card option-card--brand" data-value="Honda">Honda</button>
+          <button type="button" class="option-card option-card--brand" data-value="Hyundai">Hyundai</button>
+          <button type="button" class="option-card option-card--brand" data-value="Isuzu">Isuzu</button>
+          <button type="button" class="option-card option-card--brand" data-value="Kia">Kia</button>
+          <button type="button" class="option-card option-card--brand" data-value="Lexus">Lexus</button>
+          <button type="button" class="option-card option-card--brand" data-value="Mazda">Mazda</button>
+          <button type="button" class="option-card option-card--brand" data-value="Mercedes-Benz">Mercedes-Benz</button>
+          <button type="button" class="option-card option-card--brand" data-value="MG">MG</button>
+          <button type="button" class="option-card option-card--brand" data-value="MINI">MINI</button>
+          <button type="button" class="option-card option-card--brand" data-value="Mitsubishi">Mitsubishi</button>
+          <button type="button" class="option-card option-card--brand" data-value="Neta">Neta</button>
+          <button type="button" class="option-card option-card--brand" data-value="Nissan">Nissan</button>
+          <button type="button" class="option-card option-card--brand" data-value="Peugeot">Peugeot</button>
+          <button type="button" class="option-card option-card--brand" data-value="Porsche">Porsche</button>
+          <button type="button" class="option-card option-card--brand" data-value="Subaru">Subaru</button>
+          <button type="button" class="option-card option-card--brand" data-value="Suzuki">Suzuki</button>
+          <button type="button" class="option-card option-card--brand" data-value="Tesla">Tesla</button>
+          <button type="button" class="option-card option-card--brand" data-value="Toyota">Toyota</button>
+          <button type="button" class="option-card option-card--brand" data-value="Volvo">Volvo</button>
+        </div>
+      </div>
+
+      <div class="quiz-nav">
+        <button type="button" id="backBtn" class="btn-ghost" hidden>← ย้อนกลับ</button>
+        <button type="button" id="nextBtn" class="btn-primary">ถัดไป</button>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 2 · COMPARE ===================== -->
+    <section class="results" id="resultsSection" hidden>
+      <div class="results__intro">
+        <p class="results__eyebrow">สรุปให้แล้วนะ</p>
+        <h2>นี่คือรถที่เราว่าเหมาะกับพี่ที่สุด</h2>
+        <p class="results__sub" id="resultsSummary"></p>
+      </div>
+
+      <div class="results__grid" id="resultsGrid"></div>
+
+      <div class="stage-nav">
+        <div class="stage-nav__secondary">
+          <button type="button" id="editBtn" class="btn-ghost">← แก้คำตอบ</button>
+          <button type="button" id="restartBtn" class="btn-ghost">↺ เริ่มตอบใหม่</button>
+        </div>
+        <button type="button" id="toCostRiskBtn" class="btn-primary">ดูค่าใช้จ่าย 5 ปี &amp; ความเสี่ยง →</button>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 3 · COST & RISK ===================== -->
+    <section class="results" id="costRiskSection" hidden>
+      <div class="results__intro">
+        <p class="results__eyebrow">AI predicts cost &amp; risk</p>
+        <h2>ราคาป้ายไม่ใช่ต้นทุนทั้งหมด</h2>
+        <p class="results__sub">ประมาณการค่าใช้จ่ายรวม 5 ปี (ซื้อ + น้ำมัน/ไฟ + ประกัน + ซ่อมบำรุง − มูลค่าขายต่อ) และข้อควรรู้ก่อนตัดสินใจของแต่ละคัน</p>
+      </div>
+
+      <div class="cost-risk-grid" id="costRiskGrid"></div>
+
+      <div class="stage-nav">
+        <button type="button" id="backToCompareBtn" class="btn-ghost">← กลับไปเทียบรถ</button>
+        <button type="button" id="toDecideBtn" class="btn-primary">ถัดไป: ตัดสินใจ →</button>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 4 · DECIDE ===================== -->
+    <section class="results" id="decideSection" hidden>
+      <div class="results__intro">
+        <p class="results__eyebrow">Review &amp; decide</p>
+        <h2>เลือกคันที่ใช่ที่สุดสำหรับพี่</h2>
+        <p class="results__sub">ดูสรุปคะแนนความเหมาะสมเทียบกันอีกที แล้วเลือกคันเดียวที่จะพาไปโชว์รูม</p>
+      </div>
+
+      <div class="decide-grid" id="decideGrid"></div>
+
+      <div class="stage-nav">
+        <button type="button" id="backToCostRiskBtn" class="btn-ghost">← กลับไปดูต้นทุน</button>
+        <button type="button" id="confirmDecisionBtn" class="btn-primary">ยืนยันเลือกคันนี้ →</button>
+      </div>
+    </section>
+
+    <!-- ===================== STAGE 5 · SHOWROOM ===================== -->
+    <section class="results" id="showroomSection" hidden>
+      <div class="results__intro">
+        <p class="results__eyebrow">Visit showroom</p>
+        <h2 id="showroomTitle">เตรียมตัวก่อนไปโชว์รูม</h2>
+        <p class="results__sub" id="showroomSub"></p>
+      </div>
+
+      <div class="checklist-progress">
+        <div class="checklist-progress__bar"><div class="checklist-progress__fill" id="checklistFill"></div></div>
+        <span class="checklist-progress__label" id="checklistLabel">0/0 ข้อ</span>
+      </div>
+
+      <div id="checklistGroups"></div>
+
+      <div class="stage-nav">
+        <button type="button" id="backToDecideBtn" class="btn-ghost">← กลับไปเลือกใหม่</button>
+        <button type="button" id="finishRestartBtn" class="btn-ghost">↺ เริ่มต้นทั้งหมดใหม่</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
